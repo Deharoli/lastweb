@@ -1,4 +1,6 @@
 import { Component } from 'solid-js';
+import { A, useNavigate } from '@solidjs/router';
+
 
 interface DownloadButtonProps {
   platform: string;
@@ -11,7 +13,7 @@ interface DownloadButtonProps {
 const DownloadButton: Component<DownloadButtonProps> = (props) => {
   return (
     <a 
-      href={`#${props.platform.toLowerCase()}`}
+      href={'/auth'}
       class={`flex items-center px-6 py-4 rounded-full shadow-md transition-transform hover:-translate-y-1 ${
         props.isWebApp 
           ? 'bg-gradient-to-r from-[#FF5F76] to-[#FF914D] text-white' 
@@ -52,7 +54,7 @@ const Download: Component = () => {
             sublabel="Download on"
             label="App Store"
           />
-          
+        
           <DownloadButton
             platform="webapp"
             icon="fas fa-globe"
@@ -60,6 +62,7 @@ const Download: Component = () => {
             label="Web App"
             isWebApp={true}
           />
+          
         </div>
       </div>
     </section>
