@@ -4,14 +4,16 @@ const LoginForm: Component = () => {
   return (
     <>
       <h2 class="text-4xl font-bold mb-4 text-center text-[#FF914D]">Log in</h2>
-      <form class="space-y-4">
+      <form method="post" action="/auth/local-login" class="space-y-4">
         <input
+          name="email"
           type="email"
           placeholder="Email address"
           required
           class="w-full px-4 py-3 border rounded-lg text-sm focus:outline-none text-black"
         />
         <input
+          name="password"
           type="password"
           placeholder="Password"
           required

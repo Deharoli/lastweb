@@ -24,7 +24,7 @@ const Navbar: Component = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   });
 
-  const isAuthPage = () => location.pathname === "/auth";
+  const isAuthPage = () => location.pathname === "/pages/auth";
 
   return (
     <nav
@@ -49,7 +49,7 @@ const Navbar: Component = () => {
         ) : (
           <button
             onClick={() => {
-              isAuthPage() ? navigate('/') : navigate('/auth');
+              isAuthPage() ? navigate('/') : navigate('/pages/auth');
             }}
             class="px-6 py-2 bg-gradient-to-r from-[#FF5F76] to-[#FF914D] text-white rounded-full font-semibold text-xl hover:shadow-md transition duration-300"
           >

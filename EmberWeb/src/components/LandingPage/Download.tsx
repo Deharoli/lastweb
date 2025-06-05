@@ -13,7 +13,7 @@ interface DownloadButtonProps {
 const DownloadButton: Component<DownloadButtonProps> = (props) => {
   return (
     <a 
-      href={'/auth'}
+      href={'/pages/auth'}
       class={`flex items-center px-6 py-4 rounded-full shadow-md transition-transform hover:-translate-y-1 ${
         props.isWebApp 
           ? 'bg-gradient-to-r from-[#FF5F76] to-[#FF914D] text-white' 

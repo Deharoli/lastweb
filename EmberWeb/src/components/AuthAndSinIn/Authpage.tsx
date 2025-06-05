@@ -7,11 +7,20 @@ const AuthPage: Component = () => {
 
   return (
     <div class="min-h-screen flex items-center justify-center bg-[#f5f5f7] px-4">
-      <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center space-y-6">
 
         {mode() === 'login' ? <LoginForm /> : <RegisterForm />}
 
-        <div class="mt-10 text-sm text-[#232a34]">
+        <form method="post" action="/auth/oauth-start">
+          <button
+            type="submit"
+            class="px-8 py-4 border-2 border-[#FF914D] text-[#232a34] font-semibold rounded-full text-lg hover:bg-opacity-5 hover:-translate-y-1 transition duration-300"
+          >
+            Continuer avec Microsoft
+          </button>
+        </form>
+
+        <div class="pt-4 text-sm text-[#232a34]">
           {mode() === 'login' ? (
             <p>
               Not registered yet?{' '}
