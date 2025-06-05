@@ -56,7 +56,7 @@ const MainHero: Component = () => {
                         </linearGradient>
                       </defs>
                     </svg>
-                    <span class="ml-2 text-lg font-semibold bg-gradient-to-r from-[#FF5F76] to-[#78c2b7] bg-clip-text text-transparent">Ember</span>
+                    <span class="ml-2 text-lg font-bold bg-gradient-to-r from-[#FF5F76] to-[#78c2b7] bg-clip-text text-transparent">Ember</span>
                   </div>
                 </div>
                 
@@ -66,7 +66,7 @@ const MainHero: Component = () => {
                   <div class="mb-6">
                     <h2 class="text-xl font-bold mb-2">
                       Share your 
-                      <span class="bg-gradient-to-r from-[#FF5F76] to-[#f0a5a5] bg-clip-text text-transparent">emotional</span> 
+                      <span class="bg-gradient-to-r from-[#FF5F76] to-[#f0a5a5] bg-clip-text text-transparent">emotional </span> 
                       <span class="bg-gradient-to-r from-[#f0a5a5] to-[#78c2b7] bg-clip-text text-transparent">journey</span>
                     </h2>
                     <p class="text-sm text-gray-600 mb-3">
