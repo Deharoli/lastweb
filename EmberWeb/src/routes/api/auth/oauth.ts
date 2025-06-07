@@ -1,8 +1,14 @@
-import { ActionFunction, redirect } from "@solidjs/router";
-import { getLoginUrl } from "../../lib/oauth";
+import { APIEvent } from "@solidjs/start/server";
+import { getLoginUrl } from "../../../lib/oauth";
 
-export const action: ActionFunction = async ({ request }) => {
-    'use server'
-  const { url, headers } = await getLoginUrl(request);
-  return redirect(url, { headers });
-};
+export async function GET(event: APIEvent) {
+  'use server';
+  const { url, headers } = await getLoginUrl(event.request);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: url,
+      ...headers,
+    },
+  });
+}

@@ -11,14 +11,13 @@ const AuthPage: Component = () => {
 
         {mode() === 'login' ? <LoginForm /> : <RegisterForm />}
 
-        <form method="post" action="/auth/oauth-start">
-          <button
-            type="submit"
-            class="px-8 py-4 border-2 border-[#FF914D] text-[#232a34] font-semibold rounded-full text-lg hover:bg-opacity-5 hover:-translate-y-1 transition duration-300"
-          >
-            Continuer avec Microsoft
-          </button>
-        </form>
+        <button
+          onClick={() => window.location.href = "/api/auth/oauth"}
+          class="block w-full px-8 py-4 border-2 border-[#FF914D] text-[#232a34] font-semibold rounded-full text-lg hover:bg-opacity-5 hover:-translate-y-1 transition duration-300 text-center"
+        >
+          <i class="fab fa-google mr-2"></i>
+          Continuer avec Google
+        </button>
 
         <div class="pt-4 text-sm text-[#232a34]">
           {mode() === 'login' ? (

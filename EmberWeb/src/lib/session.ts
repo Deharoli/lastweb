@@ -1,5 +1,3 @@
-// lib/session.ts
-
 import { createCookieSessionStorage } from "@remix-run/node";
 import { type RequestEvent } from "solid-start";
 
@@ -53,4 +51,12 @@ export async function destroySession(event: RequestEvent) {
       "Set-Cookie": cookie,
     },
   });
+}
+
+export async function saveAuthState(request: Request, state: string, codeVerifier: string) {
+  const session = await storage.getSession(request.headers.get("cookie"));
+  session.set("state", state);
+  session.set("codeVerifier", codeVerifier);
+  const cookie = await storage.commitSession(session);
+  return { "Set-Cookie": cookie };
 }
