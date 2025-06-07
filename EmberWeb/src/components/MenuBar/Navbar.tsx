@@ -4,7 +4,6 @@ import Logo from '../../assets/Logo.png';
 
 const Navbar: Component = () => {
   const [showNav, setShowNav] = createSignal(true);
-  const [isAuthenticated, setIsAuthenticated] = createSignal(false); // à adapter
   const navigate = useNavigate();
   const location = useLocation();
   let lastScrollY = 0;
@@ -24,6 +23,17 @@ const Navbar: Component = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   });
 
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/pages/auth'; // Redirige vers la page de login
+  };
+
+  // Détection des pages "app"
+  const isAppPage = () =>
+    ['/feed', '/question', '/profil'].some(path =>
+      location.pathname.includes(path)
+    );
+
   const isAuthPage = () => location.pathname === "/pages/auth";
 
   return (
@@ -40,11 +50,20 @@ const Navbar: Component = () => {
           </span>
         </div>
 
-        {isAuthenticated() ? (
+        {isAppPage() ? (
           <div class="flex gap-6 text-lg">
-            <A href="/feed" title="Feed"><i class="fas fa-stream text-[#232a34]"></i></A>
-            <A href="/question" title="Question"><i class="fas fa-question-circle text-[#232a34]"></i></A>
-            <A href="/profil" title="Profil"><i class="fas fa-user text-[#232a34]"></i></A>
+            <A href="/feed" title="Feed">
+              <i class="fas fa-stream text-[#232a34]"></i>
+            </A>
+            <A href="/question" title="Question">
+              <i class="fas fa-question-circle text-[#232a34]"></i>
+            </A>
+            <A href="/profil" title="Profil">
+              <i class="fas fa-user text-[#232a34]"></i>
+            </A>
+            <button onClick={handleLogout} title="Logout">
+              <i class="fas fa-power-off text-[#FF5F76]"></i>
+            </button>
           </div>
         ) : (
           <button

@@ -4,7 +4,7 @@ const LoginForm: Component = () => {
   return (
     <>
       <h2 class="text-4xl font-bold mb-4 text-center text-[#FF914D]">Log in</h2>
-      <form method="post" action="/auth/local-login" class="space-y-4">
+      <form method="post" action="/api/auth/login" class="space-y-4">
         <input
           name="email"
           type="email"

@@ -1,15 +1,20 @@
-import { Component } from 'solid-js';
+import { Component, createSignal } from 'solid-js';
 
 const RegisterForm: Component = () => {
+  const [firstName, setFirstName] = createSignal('');
+  const [lastName, setLastName] = createSignal('');
+
   return (
     <>
       <h2 class="text-4xl font-bold mb-4 text-center text-[#FF914D]">Create an account</h2>
-      <form method="post" action="/auth/local-signup" class="space-y-4">
+      <form method="post" action="/api/auth/register" class="space-y-4">
           <input
             name="firstName"
             type="text"
             placeholder="First Name"
             required
+            value={firstName()}
+            onInput={e => setFirstName(e.currentTarget.value.replace(/\s+/g, ''))}
             class="w-full px-4 py-3 border rounded-lg text-sm focus:outline-none text-black"
           />
           <input
@@ -17,6 +22,8 @@ const RegisterForm: Component = () => {
             type="text"
             placeholder="Last Name"
             required
+            value={lastName()}
+            onInput={e => setLastName(e.currentTarget.value.replace(/\s+/g, ''))}
             class="w-full px-4 py-3 border rounded-lg text-sm focus:outline-none text-black"
           />
           <input

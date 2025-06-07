@@ -1,6 +1,7 @@
 import { Component, For } from 'solid-js';
 import ContentCard from './ContentCard';
 import type { Content } from './ContentCard';
+import Navbar from '../MenuBar/Navbar';
 
 const Feed: Component = () => {
   const contentList: Content[] = [
@@ -12,6 +13,7 @@ const Feed: Component = () => {
 
   return (
     <div class="bg-[#f5f5f7] min-h-screen flex flex-col items-center pt-10 px-5">
+      <Navbar />
       <div class="w-full max-w-xl">
         <For each={contentList}>{(item) => <ContentCard content={item} />}</For>
       </div>
