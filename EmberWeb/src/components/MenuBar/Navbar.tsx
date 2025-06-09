@@ -4,6 +4,7 @@ import Logo from '../../assets/Logo.png';
 
 const Navbar: Component = () => {
   const [showNav, setShowNav] = createSignal(true);
+  const [isLoggingOut, setIsLoggingOut] = createSignal(false);
   const navigate = useNavigate();
   const location = useLocation();
   let lastScrollY = 0;
@@ -24,17 +25,40 @@ const Navbar: Component = () => {
   });
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    window.location.href = '/pages/auth'; // Redirige vers la page de login
+    if (isLoggingOut()) return; // Évite les double-clics
+
+    setIsLoggingOut(true);
+
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include', // Important pour envoyer les cookies
+      });
+
+      if (response.ok) {
+        // Redirige vers la page de login
+        window.location.href = '/pages/auth';
+      } else {
+        console.error('Erreur lors de la déconnexion:', response.statusText);
+        // Force la redirection même en cas d'erreur
+        window.location.href = '/pages/auth';
+      }
+    } catch (error) {
+      console.error('Erreur réseau lors de la déconnexion:', error);
+      // Force la redirection même en cas d'erreur réseau
+      window.location.href = '/pages/auth';
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   // Détection des pages "app"
   const isAppPage = () =>
-    ['/feed', '/question', '/profil'].some(path =>
+    ['/feed', '/question', '/profil'].some((path) =>
       location.pathname.includes(path)
     );
 
-  const isAuthPage = () => location.pathname === "/pages/auth";
+  const isAuthPage = () => location.pathname === '/pages/auth';
 
   return (
     <nav
@@ -43,6 +67,7 @@ const Navbar: Component = () => {
       }`}
     >
       <div class="w-full max-w-6xl mx-auto flex justify-between items-center">
+        {/* Logo */}
         <div class="flex items-center font-bold">
           <img src={Logo} alt="Ember Logo" class="w-17 h-17 mr-3" />
           <span class="ml-2 text-5xl bg-gradient-to-r from-[#FF5F76] to-[#FF914D] bg-clip-text text-transparent">
@@ -50,19 +75,35 @@ const Navbar: Component = () => {
           </span>
         </div>
 
+        {/* Zone de recherche centrée conditionnelle */}
+        {isAppPage() && (
+          <div class="flex-1 flex justify-center">
+            <input
+              type="text"
+              placeholder="Search people or posts..."
+              class="w-full max-w-md px-4 py-2 rounded-full border border-white bg-white text-[#232a34] focus:outline-none focus:ring-2 focus:ring-[#FF5F76] transition"
+            />
+          </div>
+        )}
+
+        {/* Boutons à droite */}
         {isAppPage() ? (
           <div class="flex gap-6 text-lg">
-            <A href="/feed" title="Feed">
-              <i class="fas fa-stream text-[#232a34]"></i>
-            </A>
-            <A href="/question" title="Question">
-              <i class="fas fa-question-circle text-[#232a34]"></i>
-            </A>
-            <A href="/profil" title="Profil">
-              <i class="fas fa-user text-[#232a34]"></i>
-            </A>
-            <button onClick={handleLogout} title="Logout">
-              <i class="fas fa-power-off text-[#FF5F76]"></i>
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut()}
+              title="Logout"
+              class={`transition ${
+                isLoggingOut()
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:scale-110'
+              }`}
+            >
+              <i
+                class={`fas ${
+                  isLoggingOut() ? 'fa-spinner fa-spin' : 'fa-power-off'
+                } text-[#FF5F76]`}
+              ></i>
             </button>
           </div>
         ) : (

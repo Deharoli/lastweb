@@ -1,28 +1,71 @@
-import { Component, For } from 'solid-js';
+import { Component, For, createSignal, Show } from 'solid-js';
 import ContentCard from './ContentCard';
 import type { Content } from './ContentCard';
-import Navbar from '../MenuBar/Navbar';
+import FeedTabs from './FeedTabs';
 
-const Feed: Component = () => {
-  const contentList: Content[] = [
-    { username: 'Sarah', type: 'video', src: 'sample1.mp4', question: 'Quel est ton moment préféré ?' },
-    { username: 'David', type: 'audio', src: 'sample2.mp3' },
-    { username: 'Léa', type: 'image', src: 'image1.jpg' },
-    { username: 'Yassine', type: 'text', src: 'Ce jour-là, j’ai compris que le silence valait parfois plus que mille mots.' }
-  ];
+const Feed: Component = (props: { posts: any[] }) => {
+  const [activeTab, setActiveTab] = createSignal("all");
+
+  const filteredContent = () => {
+    if (activeTab() === "all") {
+      return props.posts;
+    }
+    
+    return props.posts.filter(post => 
+      post.mediaType === activeTab() || 
+      (activeTab() === "text" && !post.mediaType)
+    );
+  };
 
   return (
     <div class="bg-[#f5f5f7] min-h-screen flex flex-col items-center pt-10 px-5">
-      <Navbar />
-      <div class="w-full max-w-xl">
-        <For each={contentList}>{(item) => <ContentCard content={item} />}</For>
+      <div class="w-full max-w-4xl mx-auto pt-20 px-4">
+        <FeedTabs activeTab={activeTab()} setActiveTab={setActiveTab} />
+        
+        <Show
+          when={filteredContent().length > 0}
+          fallback={
+            <div class="text-center py-12 text-gray-500">
+              <div class="text-6xl mb-4">📝</div>
+              <h3 class="text-xl font-semibold mb-2">Aucune réponse pour l'instant</h3>
+              <p class="text-gray-400">
+                {activeTab() === "all" 
+                  ? "Soyez le premier à partager vos réponses !" 
+                  : `Aucune réponse ${activeTab() === "video" ? "vidéo" : activeTab() === "audio" ? "audio" : "texte"} pour le moment.`}
+              </p>
+            </div>
+          }
+        >
+          <For each={filteredContent()}>{(post) => (
+            <ContentCard
+              content={{
+                id: post.id, // ✅ Passe l'ID du post
+                username: post.author?.name || "Anonyme",
+                type: (post.mediaType as any) || "text",
+                src: post.mediaUrl || "",
+                question: post.title,
+                time: new Date(post.createdAt).toLocaleDateString("fr-FR", {
+                  day: "numeric",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit"
+                }),
+                privacy: "public",
+                reactions: post._count?.likes || 0, // ✅ Vrais likes
+                commentsCount: post._count?.comments || 0, // ✅ Vrais commentaires
+                isLikedByCurrentUser: post.isLikedByCurrentUser || false, // ✅ Statut du like
+                comments: post.comments?.map(comment => ({
+                  id: comment.id,
+                  content: comment.content,
+                  user: comment.user,
+                  createdAt: comment.createdAt
+                })) || [], // ✅ Commentaires
+                text: post.content,
+              }}
+            />
+          )}</For>
+        </Show>
       </div>
-      <button
-        class="fixed bottom-6 right-6 bg-gradient-to-r from-[#FF5F76] to-[#FF914D] text-white w-14 h-14 rounded-full shadow-lg text-2xl flex items-center justify-center hover:scale-105 transition"
-        onClick={() => (window.location.href = 'enregistrement.html')}
-      >
-        <i class="fas fa-plus"></i>
-      </button>
     </div>
   );
 };

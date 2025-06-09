@@ -4,3 +4,5 @@ export default function Auth() {
   console.log("Auth page loaded");
   return <Fullpage />;
 }
+
+

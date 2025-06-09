@@ -12,6 +12,8 @@
     "@remix-run/node": "^2.16.8",
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "^1.1.0",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.2",
     "cookie": "^1.0.2",
     "solid-js": "^1.9.5",
     "vinxi": "^0.5.3"

@@ -1,6 +1,6 @@
 import { Google, generateCodeVerifier, generateState, decodeIdToken } from "arctic";
 import { PrismaClient } from "@prisma/client";
-import { saveAuthState, getSession, createUserSession, commitSession } from "./session";
+import { saveAuthState, getSessionData, commitSession } from "./session";
 
 const prisma = new PrismaClient();
 
@@ -30,7 +30,7 @@ export async function handleOAuthCallback(request: Request) {
     return new Response("Missing code or state", { status: 400 });
   }
 
-  const session = await getSession(request);
+  const session = await getSessionData(request);
   const storedState = session.get("state");
   const codeVerifier = session.get("codeVerifier");
 
@@ -68,7 +68,10 @@ export async function handleOAuthCallback(request: Request) {
     const lastName = rest.join(" ");
     const slug = `${firstName.trim().replace(/\s+/g, '-')}-${lastName.trim().replace(/\s+/g, '-')}`.toLowerCase();
 
-    // Stocke les jetons dans la session
+    // Stocke l'email dans la session (comme pour login/register)
+    session.set("email", claims.email);
+    
+    // Stocke les jetons OAuth dans la session
     session.set("access_token", accessToken);
     session.set("access_token_expires_at", accessTokenExpiresAt);
     if (refreshToken) {
@@ -81,7 +84,7 @@ export async function handleOAuthCallback(request: Request) {
       status: 302,
       headers: {
         Location: `/pages/${slug}/feed`,
-        "Set-Cookie": await storage.commitSession(session),
+        "Set-Cookie": await commitSession(session),
       },
     });
   } catch (error) {
@@ -90,7 +93,7 @@ export async function handleOAuthCallback(request: Request) {
   }
 }
 
-export async function refreshAccessTokenIfNeeded(session) {
+export async function refreshAccessTokenIfNeeded(session: any) {
   const accessTokenExpiresAt = session.get("access_token_expires_at");
   const refreshToken = session.get("refresh_token");
   if (!refreshToken) return;

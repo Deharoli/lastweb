@@ -18,6 +18,11 @@ body {
   color: rgb(var(--foreground-rgb));
 }
 
+body.dark {
+  background: #232a34;
+  color: #f5f5f7;
+}
+
 /* Add custom animations for floating elements */
 @keyframes float {
   0% {
