@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,40 +11,44 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  name        String
-  email       String    @unique
-  password    String
-  officialID  String?   @unique
-  posts       Post[]
-  likes       Like[]    // Relation vers les likes
-  comments    Comment[] // Relation vers les commentaires
-  createdAt   DateTime  @default(now())
+  id                Int                  @id @default(autoincrement())
+  name              String
+  email             String               @unique
+  password          String
+  officialID        String?              @unique
+  posts             Post[]
+  likes             Like[] // Relation vers les likes
+  comments          Comment[] // Relation vers les commentaires
+  answeredQuestions UserQuestionAnswer[] // ✅ NOUVEAU : Questions répondues
+  createdAt         DateTime             @default(now())
 }
 
 model Post {
-  id           Int       @id @default(autoincrement())
-  title        String
-  content      String?
-  mediaType    String?
-  mediaUrl     String?
+  id            Int      @id @default(autoincrement())
+  title         String
+  content       String?
+  mediaType     String?
+  mediaUrl      String?
   mediaMimeType String?
-  authorId     Int
-  createdAt    DateTime  @default(now())
+  authorId      Int
+  questionId    Int? // ✅ NOUVEAU : Lien vers la question répondue
+  createdAt     DateTime @default(now())
 
-  author       User      @relation(fields: [authorId], references: [id])
-  likes        Like[]    // Relation vers les likes
-  comments     Comment[] // Relation vers les commentaires
+  author          User                 @relation(fields: [authorId], references: [id])
+  question        Question?            @relation(fields: [questionId], references: [id]) // ✅ NOUVEAU
+  likes           Like[] // Relation vers les likes
+  comments        Comment[] // Relation vers les commentaires
+  questionAnswers UserQuestionAnswer[] // ✅ AJOUT : Relation inverse manquante
 }
 
 model Like {
-  id       Int  @id @default(autoincrement())
-  userId   Int
-  postId   Int
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  postId    Int
   createdAt DateTime @default(now())
 
-  user     User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post     Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId]) // Un utilisateur ne peut liker qu'une fois par post
 }
@@ -59,6 +60,50 @@ model Comment {
   postId    Int
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+// ✅ AJOUT DES NOUVEAUX MODÈLES POUR LES QUESTIONS THÉMATIQUES
+
+model QuestionCategory {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String
+  emoji       String
+  color       String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  questions Question[] // Relation vers les questions
+}
+
+model Question {
+  id         Int      @id @default(autoincrement())
+  text       String
+  categoryId Int
+  source     String   @default("ember_team") // "ember_team" ou "ai_generated"
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  category    QuestionCategory     @relation(fields: [categoryId], references: [id])
+  posts       Post[] // ✅ NOUVEAU : Posts qui répondent à cette question
+  userAnswers UserQuestionAnswer[] // ✅ NOUVEAU : Réponses des utilisateurs
+
+  @@unique([text, categoryId]) // Évite les doublons de questions dans une même catégorie
+}
+
+// ✅ NOUVEAU MODÈLE : Tracker des réponses utilisateur par question
+model UserQuestionAnswer {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  questionId Int
+  postId     Int // Le post qui contient la réponse
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  post     Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId]) // Un utilisateur ne peut répondre qu'une fois par question
 }

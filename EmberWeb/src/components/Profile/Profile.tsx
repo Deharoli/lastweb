@@ -19,20 +19,20 @@ type ProfilePageProps = {
       mediaType: string | null;
       mediaUrl: string | null;
       createdAt: Date;
-      isLikedByCurrentUser: boolean; // ✅ Ajout
+      isLikedByCurrentUser: boolean;
       author: {
         name: string;
       };
       _count: {
         likes: number;
         comments: number;
-      }; // ✅ Ajout
+      };
       comments: Array<{
         id: number;
         content: string;
         user: { name: string };
         createdAt: string;
-      }>; // ✅ Ajout
+      }>;
     }>;
     stats: {
       totalPosts: number;
@@ -40,6 +40,7 @@ type ProfilePageProps = {
       activeDays: number;
     };
   } | null;
+  onPostsChange?: () => void;
 };
 
 export default function ProfilePage(props: ProfilePageProps) {
@@ -48,15 +49,24 @@ export default function ProfilePage(props: ProfilePageProps) {
   return (
     <div class="min-h-screen bg-[#f5f5f7] pt-20">
       <div class="w-full max-w-4xl mx-auto px-4 py-6 pb-24">
+        
         <ProfileHeader 
           user={props.profileData?.user} 
           stats={props.profileData?.stats} 
         />
-        <ProfileTabs activeTab={activeTab()} setActiveTab={setActiveTab} />
+        
+        <ProfileTabs 
+          activeTab={activeTab()} 
+          onTabChange={setActiveTab} // ✅ Correct : passe setActiveTab comme onTabChange
+        />
+        
         <ProfileContent 
           activeTab={activeTab()} 
           posts={props.profileData?.posts}
+          currentUserName={props.profileData?.user?.name}
+          onPostsChange={props.onPostsChange}
         />
+        
       </div>
     </div>
   );

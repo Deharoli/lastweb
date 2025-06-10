@@ -25,6 +25,8 @@ const getUserProfile = cache(async () => {
       throw redirect("/pages/auth");
     }
     
+    console.log("🔍 Getting user profile...");
+    
     // Récupère l'utilisateur et ses posts avec les mêmes données que le feed
     const user = await prisma.user.findUnique({
       where: { email },
@@ -59,6 +61,8 @@ const getUserProfile = cache(async () => {
       },
     });
 
+    console.log("👤 User found:", user ? { name: user.name, postsCount: user.posts.length } : "null");
+
     if (!user) {
       throw redirect("/pages/auth");
     }
@@ -70,7 +74,7 @@ const getUserProfile = cache(async () => {
       author: { name: user.name } // Ajoute l'auteur
     }));
 
-    return {
+    const result = {
       user: {
         id: user.id,
         name: user.name,
@@ -85,6 +89,14 @@ const getUserProfile = cache(async () => {
         activeDays: Math.floor((Date.now() - user.createdAt.getTime()) / (1000 * 60 * 60 * 24)),
       },
     };
+
+    console.log("📦 Returning profile data:", {
+      userExists: !!result.user,
+      postsCount: result.posts.length,
+      stats: result.stats
+    });
+
+    return result;
   } finally {
     await prisma.$disconnect();
   }

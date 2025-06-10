@@ -137,9 +137,7 @@ const ContentCard: Component<{ content: Content }> = ({ content }) => {
           >
             <i class="far fa-comment"></i>
           </button>
-          <div class="post-action text-lg text-[#666] hover:text-[#FF5F76] cursor-pointer">
-            <i class="fas fa-share"></i>
-          </div>
+          {/* ❌ SUPPRESSION DU BOUTON PARTAGE */}
         </div>
       </div>
       
@@ -163,7 +161,7 @@ const ContentCard: Component<{ content: Content }> = ({ content }) => {
               placeholder="Ajouter un commentaire..."
               value={newComment()}
               onInput={e => setNewComment(e.currentTarget.value)}
-              class="flex-1 px-3 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5F76]"
+              class="flex-1 px-3 py-2 border text-black border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5F76]"
             />
             <button
               type="submit"

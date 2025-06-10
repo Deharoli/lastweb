@@ -1,4 +1,4 @@
-import { For, Show } from "solid-js";
+import { For, Show, createSignal, createEffect } from "solid-js";
 import ContentCard, { Content } from "../Feed/ContentCard";
 
 type ProfileContentProps = {
@@ -10,33 +10,113 @@ type ProfileContentProps = {
     mediaType: string | null;
     mediaUrl: string | null;
     createdAt: Date;
-    isLikedByCurrentUser: boolean; // ✅ Ajout
+    isLikedByCurrentUser: boolean;
     author: {
       name: string;
     };
     _count: {
       likes: number;
       comments: number;
-    }; // ✅ Ajout
+    };
     comments: Array<{
       id: number;
       content: string;
       user: { name: string };
       createdAt: string;
-    }>; // ✅ Ajout
+    }>;
   }>;
+  currentUserName?: string;
+  onPostsChange?: () => void;
 };
 
 const ProfileContent = (props: ProfileContentProps) => {
+  const [posts, setPosts] = createSignal(props.posts || []);
+
+  // ✅ NOUVEAU : Effet pour synchroniser avec les props
+  createEffect(() => {
+    if (props.posts) {
+      console.log("🔄 Props posts updated:", props.posts);
+      setPosts(props.posts);
+    }
+  });
+
+  // ✅ Fonction pour modifier un post
+  const handleEditPost = async (postId: number, title: string, content: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+
+      const response = await fetch(`/api/posts/${postId}/edit`, {
+        method: "PUT",
+        body: formData
+      });
+
+      if (response.ok) {
+        console.log("✅ Post modifié avec succès");
+        const updatedPost = await response.json();
+        setPosts(prev => prev.map(post => 
+          post.id === postId 
+            ? { ...post, title: updatedPost.title, content: updatedPost.content }
+            : post
+        ));
+        
+        if (props.onPostsChange) {
+          props.onPostsChange();
+        }
+      } else {
+        const errorText = await response.text();
+        console.error("❌ Erreur modification:", errorText);
+        alert("Erreur lors de la modification: " + errorText);
+      }
+    } catch (error) {
+      console.error("❌ Erreur réseau:", error);
+      alert("Erreur de connexion");
+    }
+  };
+
+  // ✅ Fonction pour supprimer un post
+  const handleDeletePost = async (postId: number) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/delete`, {
+        method: "DELETE"
+      });
+
+      if (response.ok) {
+        console.log("✅ Post supprimé avec succès");
+        setPosts(prev => prev.filter(post => post.id !== postId));
+        
+        if (props.onPostsChange) {
+          props.onPostsChange();
+        }
+      } else {
+        const errorText = await response.text();
+        console.error("❌ Erreur suppression:", errorText);
+        alert("Erreur lors de la suppression: " + errorText);
+      }
+    } catch (error) {
+      console.error("❌ Erreur réseau:", error);
+      alert("Erreur de connexion");
+    }
+  };
+
   const filteredPosts = () => {
-    if (!props.posts) return [];
+    const currentPosts = posts();
+    console.log("📊 Current posts:", currentPosts); // Debug
+    if (!currentPosts || currentPosts.length === 0) return [];
 
     if (props.activeTab === "all") {
-      return props.posts;
+      return currentPosts;
     }
 
-    return props.posts.filter((post) => post.mediaType === props.activeTab || (props.activeTab === "text" && !post.mediaType));
+    return currentPosts.filter((post) => 
+      post.mediaType === props.activeTab || 
+      (props.activeTab === "text" && !post.mediaType)
+    );
   };
+
+  console.log("🏷️ Active tab:", props.activeTab); // Debug
+  console.log("📝 Filtered posts:", filteredPosts()); // Debug
 
   return (
     <div class="space-y-6">
@@ -54,7 +134,7 @@ const ProfileContent = (props: ProfileContentProps) => {
           {(post) => (
             <ContentCard
               content={{
-                id: post.id, // ✅ Passe l'ID du post
+                id: post.id,
                 username: post.author.name,
                 type: (post.mediaType as any) || "text",
                 src: post.mediaUrl || "",
@@ -67,15 +147,20 @@ const ProfileContent = (props: ProfileContentProps) => {
                   minute: "2-digit",
                 }),
                 privacy: "public",
-                reactions: post._count?.likes || 0, // ✅ Vrais likes
-                commentsCount: post._count?.comments || 0, // ✅ Vrais commentaires
-                isLikedByCurrentUser: post.isLikedByCurrentUser || false, // ✅ Statut du like
+                reactions: post._count?.likes || 0,
+                commentsCount: post._count?.comments || 0,
+                isLikedByCurrentUser: post.isLikedByCurrentUser || false,
                 comments: post.comments?.map(comment => ({
                   id: comment.id,
                   content: comment.content,
                   user: comment.user,
                   createdAt: comment.createdAt
-                })) || [], // ✅ Commentaires
+                })) || [],
+                // ✅ Props pour les actions
+                isOwnPost: true,
+                currentUserName: props.currentUserName,
+                onEdit: handleEditPost,
+                onDelete: handleDeletePost,
               }}
             />
           )}
